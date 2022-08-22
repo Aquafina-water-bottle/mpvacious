@@ -1,3 +1,6 @@
+-- UTF8 HACK
+local utf8 = require(".utf8.init"):init()
+
 local mp = require('mp')
 local msg = require('mp.msg')
 local this = {}
@@ -156,7 +159,7 @@ end
 
 this.get_episode_number = function(filename)
     -- Reverses the filename to start the search from the end as the media title might contain similar numbers.
-    local filename_reversed = filename:reverse()
+    local filename_reversed = utf8.reverse(filename)
 
     local ep_num_patterns = {
         "[%s_](%d?%d?%d)[pP]?[eE]", -- Starting with E or EP (case-insensitive). "Example Series S01E01 [94Z295D1]"
@@ -165,15 +168,15 @@ this.get_episode_number = function(filename)
         "%](%d?%d?%d)%[", -- Surrounded by brackets. "Example Series [01]"
         "%s(%d?%d?%d)%s", -- Surrounded by whitespace. "Example Series 124 [1080p 10-bit]"
         "_(%d?%d?%d)_", -- Surrounded by underscores. "Example_Series_04_1080p"
-        "^(%d?%d?%d)[%s_]", -- Ending to the episode number. "Example Series 124"
+        "^(%d?%d?%d)[%s_・]", -- Ending to the episode number. "Example Series 124"
         "(%d?%d?%d)%-edosipE", -- Prepended by "Episode-". "Example Episode-165"
     }
 
     local s, e, episode_num
     for _, pattern in pairs(ep_num_patterns) do
-        s, e, episode_num = string.find(filename_reversed, pattern)
+        s, e, episode_num = utf8.find(filename_reversed, pattern)
         if not this.is_empty(episode_num) then
-            return #filename - e, #filename - s, episode_num:reverse()
+            return utf8.len(filename) - e, utf8.len(filename) - s, utf8.reverse(episode_num)
         end
     end
 end

@@ -124,6 +124,10 @@ local sub_list = require('subtitles.sub_list')
 local platform = require('platform.init')
 local forvo = require('utils.forvo')
 
+-- UTF8 HACK
+local utf8 = require(".utf8.init"):init()
+
+
 -- namespaces
 local subs
 local menu
@@ -139,7 +143,8 @@ end
 
 local function maybe_remove_all_spaces(str)
     if config.nuke_spaces == true and h.contains_non_latin_letters(str) then
-        return str:gsub('%s*', '')
+        -- return str:gsub('%s*', '')
+        return utf8.gsub(str:gsub('%s*', ''), "　", "")
     else
         return str
     end
@@ -207,10 +212,12 @@ local function tag_format(filename)
     if config.tag_del_episode_num == true and not h.is_empty(s) then
         if config.tag_del_after_episode_num == true then
             -- Removing everything (e.g. episode name) after the episode number including itself.
-            filename = filename:sub(1, s)
+            -- filename = filename:sub(1, s)
+            filename = utf8.sub(filename, 1, s)
         else
             -- Removing the first found instance of the episode number.
-            filename = filename:sub(1, s) .. filename:sub(e + 1, -1)
+            -- filename = filename:sub(1, s) .. filename:sub(e + 1, -1)
+            filename = utf8.sub(filename, 1 , s) .. utf8.sub(filename, e + 1, -1)
         end
     end
 
